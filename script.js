@@ -6,12 +6,13 @@ let raceStartDate = null;
 let timer = null;
 let finishOrder = [];
 
-const STORAGE_KEY = "dogSledRaceTimerState_v1";
+const STORAGE_KEY = "dogSledRaceTimerState_v2";
+
 let resumePromptShown = false;
 
 
 /* ================================
-   LOCAL SAVE / RECOVERY
+   LOCAL SAVE
 ================================ */
 
 function saveRaceState() {
@@ -20,26 +21,30 @@ function saveRaceState() {
 
     const state = {
 
-      startInterval,
+      startInterval: startInterval,
 
-      competitors,
+      competitors: competitors,
 
-      raceStarted,
+      raceStarted: raceStarted,
 
-      raceStartPerformance,
+      raceStartPerformance:
+        raceStartPerformance,
 
       raceStartDate:
         raceStartDate
           ? raceStartDate.toISOString()
           : null,
 
-      finishOrder,
+      finishOrder: finishOrder,
 
       raceName:
         document.getElementById("raceName")?.value || "",
 
       raceClass:
         document.getElementById("raceClass")?.value || "",
+
+      customClass:
+        document.getElementById("customClass")?.value || "",
 
       distance:
         document.getElementById("distance")?.value || "",
@@ -64,6 +69,10 @@ function saveRaceState() {
   }
 }
 
+
+/* ================================
+   LOAD SAVED RACE
+================================ */
 
 function getSavedRaceState() {
 
@@ -90,6 +99,10 @@ function getSavedRaceState() {
 }
 
 
+/* ================================
+   CLEAR SAVED RACE
+================================ */
+
 function clearSavedRaceState() {
 
   try {
@@ -110,6 +123,74 @@ function clearSavedRaceState() {
 
 
 /* ================================
+   GET RACE CLASS
+================================ */
+
+function getRaceClass() {
+
+  const selected =
+    document
+      .getElementById("raceClass")
+      .value;
+
+
+  if (selected === "Custom") {
+
+    const custom =
+      document
+        .getElementById("customClass")
+        .value
+        .trim();
+
+
+    return custom || "Custom";
+  }
+
+
+  return selected;
+}
+
+
+/* ================================
+   CUSTOM CLASS
+================================ */
+
+function toggleCustomClass() {
+
+  const classSelect =
+    document
+      .getElementById("raceClass");
+
+
+  const customContainer =
+    document
+      .getElementById(
+        "customClassContainer"
+      );
+
+
+  if (
+    classSelect.value === "Custom"
+  ) {
+
+    customContainer
+      .classList
+      .remove("hidden");
+
+  } else {
+
+    customContainer
+      .classList
+      .add("hidden");
+
+  }
+
+
+  saveRaceState();
+}
+
+
+/* ================================
    RESTORE SAVED RACE
 ================================ */
 
@@ -123,27 +204,31 @@ function restoreRaceState(state) {
 
 
   competitors =
-    Array.isArray(state.competitors)
+    Array.isArray(
+      state.competitors
+    )
       ? state.competitors
       : [];
 
 
   raceStarted =
-    Boolean(state.raceStarted);
-
-
-  raceStartPerformance =
-    Number(state.raceStartPerformance) || 0;
+    Boolean(
+      state.raceStarted
+    );
 
 
   raceStartDate =
     state.raceStartDate
-      ? new Date(state.raceStartDate)
+      ? new Date(
+          state.raceStartDate
+        )
       : null;
 
 
   finishOrder =
-    Array.isArray(state.finishOrder)
+    Array.isArray(
+      state.finishOrder
+    )
       ? state.finishOrder
       : [];
 
@@ -157,13 +242,20 @@ function restoreRaceState(state) {
   document
     .getElementById("raceClass")
     .value =
-    state.raceClass || "4 Dog";
+    state.raceClass ||
+    "1 Dog Scooter";
+
+
+  document
+    .getElementById("customClass")
+    .value =
+    state.customClass || "";
 
 
   document
     .getElementById("distance")
     .value =
-    state.distance || "10";
+    state.distance || "3";
 
 
   document
@@ -175,12 +267,16 @@ function restoreRaceState(state) {
   document
     .getElementById("competitorCount")
     .value =
-    competitors.length || 1;
+    competitors.length || 2;
+
+
+  toggleCustomClass();
 
 
   if (
     !competitors.length ||
-    !raceStarted
+    !raceStarted ||
+    !raceStartDate
   ) {
 
     createCompetitors();
@@ -190,11 +286,13 @@ function restoreRaceState(state) {
 
 
   /*
-     performance.now() resets when the
-     page/browser is reopened.
+     Reconstruct the performance clock.
 
-     Reconstruct the performance timeline
-     from the saved real-world start time.
+     performance.now() resets when the
+     browser/page is reopened.
+
+     We rebuild it using the saved
+     real-world start date.
   */
 
   const nowDate =
@@ -214,48 +312,50 @@ function restoreRaceState(state) {
     );
 
 
-  competitors.forEach(c => {
+  competitors.forEach(
+    c => {
 
-    if (c.startDate) {
+      if (c.startDate) {
 
-      const startDateMs =
-        new Date(
-          c.startDate
-        ).getTime();
+        const startDateMs =
+          new Date(
+            c.startDate
+          ).getTime();
 
 
-      c.startPerformance =
-        raceStartPerformance
-        +
-        (
-          startDateMs -
-          savedStartDate
-        );
+        c.startPerformance =
+          raceStartPerformance
+          +
+          (
+            startDateMs -
+            savedStartDate
+          );
+      }
+
+
+      if (c.finishDate) {
+
+        const finishDateMs =
+          new Date(
+            c.finishDate
+          ).getTime();
+
+
+        c.finishPerformance =
+          raceStartPerformance
+          +
+          (
+            finishDateMs -
+            savedStartDate
+          );
+      }
+
     }
-
-
-    if (c.finishDate) {
-
-      const finishDateMs =
-        new Date(
-          c.finishDate
-        ).getTime();
-
-
-      c.finishPerformance =
-        raceStartPerformance
-        +
-        (
-          finishDateMs -
-          savedStartDate
-        );
-    }
-
-  });
+  );
 
 
   /*
-     Lock setup controls.
+     Lock setup.
   */
 
   document
@@ -269,6 +369,51 @@ function restoreRaceState(state) {
     );
 
 
+  /*
+     Update selected interval.
+  */
+
+  document
+    .querySelectorAll(".interval")
+    .forEach(
+      button => {
+
+        button.classList.remove(
+          "selected"
+        );
+
+
+        const text =
+          button.textContent
+            .trim();
+
+
+        if (
+          (
+            startInterval === 15 &&
+            text.includes("15")
+          )
+          ||
+          (
+            startInterval === 30 &&
+            text.includes("30")
+          )
+          ||
+          (
+            startInterval === 60 &&
+            text.includes("1 min")
+          )
+        ) {
+
+          button.classList.add(
+            "selected"
+          );
+        }
+
+      }
+    );
+
+
   document
     .getElementById("startButton")
     .textContent =
@@ -277,13 +422,9 @@ function restoreRaceState(state) {
 
   document
     .getElementById("startButton")
-    .classList.add("running");
-
-
-  const raceClass =
-    document
-      .getElementById("raceClass")
-      .value;
+    .classList.add(
+      "running"
+    );
 
 
   const raceName =
@@ -291,6 +432,10 @@ function restoreRaceState(state) {
       .getElementById("raceName")
       .value
       .trim();
+
+
+  const raceClass =
+    getRaceClass();
 
 
   document
@@ -301,7 +446,9 @@ function restoreRaceState(state) {
 
   document
     .getElementById("finishSection")
-    .classList.remove("hidden");
+    .classList.remove(
+      "hidden"
+    );
 
 
   createFinishButtons();
@@ -312,8 +459,8 @@ function restoreRaceState(state) {
 
 
   /*
-     If everyone had already finished,
-     don't restart the clock.
+     If everyone has finished,
+     don't restart the timer.
   */
 
   if (
@@ -326,6 +473,7 @@ function restoreRaceState(state) {
       .getElementById("status")
       .textContent =
       "🏁 ALL COMPETITORS FINISHED";
+
 
     timer = null;
 
@@ -364,7 +512,9 @@ function checkForSavedRace() {
   }
 
 
-  if (resumePromptShown) return;
+  if (resumePromptShown)
+    return;
+
 
   resumePromptShown = true;
 
@@ -402,7 +552,9 @@ function checkForSavedRace() {
 
   if (resume) {
 
-    restoreRaceState(saved);
+    restoreRaceState(
+      saved
+    );
 
   } else {
 
@@ -423,7 +575,8 @@ function setIntervalTime(
   button
 ) {
 
-  if (raceStarted) return;
+  if (raceStarted)
+    return;
 
 
   startInterval =
@@ -455,7 +608,8 @@ function setIntervalTime(
 
 function createCompetitors() {
 
-  if (raceStarted) return;
+  if (raceStarted)
+    return;
 
 
   const count =
@@ -465,21 +619,8 @@ function createCompetitors() {
           "competitorCount"
         )
         .value
-    ) || 1;
-function toggleCustomClass() {
+    ) || 2;
 
-  const classSelect =
-    document.getElementById("raceClass");
-
-  const customContainer =
-    document.getElementById("customClassContainer");
-
-  if (classSelect.value === "Custom") {
-    customContainer.classList.remove("hidden");
-  } else {
-    customContainer.classList.add("hidden");
-  }
-}
 
   const container =
     document.getElementById(
@@ -520,7 +661,10 @@ function toggleCustomClass() {
     `;
 
 
-    container.appendChild(row);
+    container.appendChild(
+      row
+    );
+
   }
 }
 
@@ -531,12 +675,15 @@ function toggleCustomClass() {
 
 function startRace() {
 
-  if (raceStarted) return;
+  if (raceStarted)
+    return;
 
 
   const raceName =
     document
-      .getElementById("raceName")
+      .getElementById(
+        "raceName"
+      )
       .value
       .trim();
 
@@ -554,7 +701,9 @@ function startRace() {
   const distance =
     parseFloat(
       document
-        .getElementById("distance")
+        .getElementById(
+          "distance"
+        )
         .value
     );
 
@@ -604,6 +753,7 @@ function startRace() {
           ||
           String(index + 1),
 
+
         name:
           row
             .querySelector(".name")
@@ -611,6 +761,7 @@ function startRace() {
             .trim()
           ||
           `Competitor ${index + 1}`,
+
 
         startPerformance: 0,
 
@@ -631,7 +782,7 @@ function startRace() {
 
 
   /*
-     High accuracy race clock.
+     Start high-accuracy clock.
   */
 
   raceStartPerformance =
@@ -644,7 +795,7 @@ function startRace() {
 
   /*
      Give every competitor their
-     individual staggered start time.
+     staggered start time.
   */
 
   competitors.forEach(
@@ -706,13 +857,11 @@ function startRace() {
 
 
   /*
-     Show race information.
+     Race title.
   */
 
   const raceClass =
-    document
-      .getElementById("raceClass")
-      .value;
+    getRaceClass();
 
 
   document
@@ -722,11 +871,13 @@ function startRace() {
 
 
   /*
-     Show finish buttons.
+     Show finish line.
   */
 
   document
-    .getElementById("finishSection")
+    .getElementById(
+      "finishSection"
+    )
     .classList.remove(
       "hidden"
     );
@@ -812,19 +963,16 @@ function createFinishButtons() {
 
 function finishCompetitor(index) {
 
-  if (!raceStarted) return;
+  if (!raceStarted)
+    return;
 
 
   const c =
     competitors[index];
 
 
-  /*
-     Don't allow the same competitor
-     to be finished twice.
-  */
-
-  if (c.finished) return;
+  if (c.finished)
+    return;
 
 
   const now =
@@ -840,9 +988,8 @@ function finishCompetitor(index) {
 
 
   /*
-     Calculate race time from the
-     competitor's own staggered
-     start time.
+     Time is calculated from that
+     competitor's own start time.
   */
 
   c.elapsed =
@@ -855,10 +1002,6 @@ function finishCompetitor(index) {
 
   c.finished = true;
 
-
-  /*
-     Remember finish order.
-  */
 
   finishOrder.push(
     index
@@ -896,8 +1039,8 @@ function finishCompetitor(index) {
 
 
   /*
-     Stop the main clock once
-     everyone has finished.
+     Stop clock once everyone
+     has finished.
   */
 
   if (
@@ -915,6 +1058,7 @@ function finishCompetitor(index) {
       .getElementById("status")
       .textContent =
       "🏁 ALL COMPETITORS FINISHED";
+
   }
 }
 
@@ -925,9 +1069,7 @@ function finishCompetitor(index) {
 
 function undoFinish() {
 
-  if (
-    !finishOrder.length
-  ) {
+  if (!finishOrder.length) {
 
     alert(
       "There is no finish to undo."
@@ -976,10 +1118,6 @@ function undoFinish() {
   `;
 
 
-  /*
-     Restart clock if necessary.
-  */
-
   if (!timer) {
 
     timer =
@@ -987,6 +1125,7 @@ function undoFinish() {
         updateClock,
         50
       );
+
   }
 
 
@@ -1004,7 +1143,8 @@ function undoFinish() {
 
 function updateClock() {
 
-  if (!raceStarted) return;
+  if (!raceStarted)
+    return;
 
 
   const elapsed =
@@ -1062,10 +1202,6 @@ function renderResults() {
     );
 
 
-  /*
-     Sort by actual finish order.
-  */
-
   const finished =
     competitors
       .filter(
@@ -1121,7 +1257,7 @@ function renderResults() {
 
         <div class="result-details">
 
-          Total time:
+          Finished elapsed time:
 
           <span class="result-time">
             ${formatTime(c.elapsed)}
@@ -1312,7 +1448,7 @@ function clockTime(date) {
 
 
 /* ================================
-   EXPORT RESULTS
+   EXPORT CSV
 ================================ */
 
 function exportCSV() {
@@ -1337,11 +1473,7 @@ function exportCSV() {
 
 
   const raceClass =
-    document
-      .getElementById(
-        "raceClass"
-      )
-      .value;
+    getRaceClass();
 
 
   const distance =
@@ -1372,12 +1504,12 @@ function exportCSV() {
       );
 
 
-  /*
-     Race name appears once.
-  */
-
   let csv = "";
 
+
+  /*
+     Race name.
+  */
 
   csv +=
     csvValue(
@@ -1411,7 +1543,7 @@ function exportCSV() {
 
 
   /*
-     Column headings.
+     Results columns.
   */
 
   csv +=
@@ -1454,7 +1586,7 @@ function exportCSV() {
 
 
   /*
-     Create CSV file.
+     Create downloadable CSV.
   */
 
   const blob =
@@ -1599,10 +1731,6 @@ function resetRace() {
   timer = null;
 
 
-  /*
-     Delete the saved race.
-  */
-
   clearSavedRaceState();
 
 
@@ -1663,10 +1791,6 @@ function resetRace() {
     );
 
 
-  /*
-     Unlock setup controls.
-  */
-
   document
     .querySelectorAll(
       "#setup input, #setup select, #setup button"
@@ -1691,7 +1815,83 @@ function resetRace() {
     `;
 
 
+  document
+    .getElementById(
+      "customClass"
+    )
+    .value = "";
+
+
+  document
+    .getElementById(
+      "raceClass"
+    )
+    .value =
+    "1 Dog Scooter";
+
+
+  toggleCustomClass();
+
+
   createCompetitors();
+}
+
+
+/* ================================
+   SAVE SETUP CHANGES
+================================ */
+
+function setupChanged() {
+
+  if (!raceStarted) {
+    saveRaceState();
+  }
+}
+
+
+/* ================================
+   SERVICE WORKER
+================================ */
+
+function registerOfflineApp() {
+
+  if (
+    "serviceWorker" in navigator
+  ) {
+
+    window.addEventListener(
+      "load",
+      () => {
+
+        navigator.serviceWorker
+          .register(
+            "./sw.js"
+          )
+          .then(
+            registration => {
+
+              console.log(
+                "Offline mode ready.",
+                registration
+              );
+
+            }
+          )
+          .catch(
+            error => {
+
+              console.warn(
+                "Offline mode could not be registered:",
+                error
+              );
+
+            }
+          );
+
+      }
+    );
+
+  }
 }
 
 
@@ -1699,6 +1899,37 @@ function resetRace() {
    INITIALISE APP
 ================================ */
 
-createCompetitors();
+function initialiseApp() {
 
-checkForSavedRace();
+  /*
+     Make sure the custom class box
+     starts hidden.
+  */
+
+  toggleCustomClass();
+
+
+  /*
+     Create the default competitor
+     list.
+  */
+
+  createCompetitors();
+
+
+  /*
+     Check for an unfinished race.
+  */
+
+  checkForSavedRace();
+
+
+  /*
+     Enable offline operation.
+  */
+
+  registerOfflineApp();
+}
+
+
+initialiseApp();
