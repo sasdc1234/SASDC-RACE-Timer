@@ -466,7 +466,20 @@ function createCompetitors() {
         )
         .value
     ) || 1;
+function toggleCustomClass() {
 
+  const classSelect =
+    document.getElementById("raceClass");
+
+  const customContainer =
+    document.getElementById("customClassContainer");
+
+  if (classSelect.value === "Custom") {
+    customContainer.classList.remove("hidden");
+  } else {
+    customContainer.classList.add("hidden");
+  }
+}
 
   const container =
     document.getElementById(
