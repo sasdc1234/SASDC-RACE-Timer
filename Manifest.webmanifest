@@ -1,0 +1,11 @@
+{
+  "name": "Dog Sled Race Timer",
+  "short_name": "Race Timer",
+  "description": "Offline dog sled race finish timer",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#101820",
+  "theme_color": "#101820",
+  "orientation": "portrait",
+  "icons": []
+}
