@@ -1,0 +1,269 @@
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  min-height: 100%;
+  background: #101820;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #101820;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.app {
+  max-width: 1100px;
+  margin: auto;
+  padding: 15px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+h1 {
+  font-size: 30px;
+  margin: 5px;
+}
+
+#raceTitle {
+  color: #f1c40f;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.panel {
+  background: #1d2a35;
+  border-radius: 15px;
+  padding: 18px;
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-top: 14px;
+  margin-bottom: 6px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 13px;
+  font-size: 18px;
+  border-radius: 8px;
+  border: none;
+}
+
+input:disabled,
+select:disabled {
+  opacity: .65;
+}
+
+.distance {
+  display: flex;
+  gap: 8px;
+}
+
+.distance input {
+  flex: 1;
+}
+
+.distance select {
+  width: 130px;
+}
+
+.intervals {
+  display: flex;
+  gap: 8px;
+}
+
+button {
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  color: white;
+  font-size: 17px;
+  font-weight: bold;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+.interval {
+  flex: 1;
+  background: #34495e;
+}
+
+.interval.selected {
+  background: #27ae60;
+}
+
+.competitor-count {
+  display: flex;
+  gap: 8px;
+}
+
+.competitor-count input {
+  width: 120px;
+}
+
+.competitor-count button {
+  background: #2980b9;
+}
+
+.competitor {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.start {
+  width: 100%;
+  background: #e67e22;
+  font-size: 25px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.start.running {
+  background: #c0392b;
+}
+
+.reset {
+  width: 100%;
+  background: #555;
+  margin-top: 8px;
+}
+
+.clock {
+  background: black;
+  border-radius: 15px;
+  padding: 25px 10px;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+#raceClock {
+  font-family: monospace;
+  font-size: clamp(45px, 12vw, 90px);
+  color: #2ecc71;
+  font-weight: bold;
+}
+
+#status {
+  color: #aaa;
+  margin-top: 8px;
+}
+
+#localSaveStatus {
+  text-align: center;
+  color: #7f8c8d;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.finish-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.finish {
+  min-height: 110px;
+  background: #2980b9;
+  font-size: 22px;
+}
+
+.finish:active {
+  transform: scale(.96);
+  background: #1abc9c;
+}
+
+.finish.done {
+  background: #555;
+  opacity: .5;
+}
+
+.finish small {
+  display: block;
+  font-size: 15px;
+  margin-top: 7px;
+  font-weight: normal;
+}
+
+.undo {
+  width: 100%;
+  margin-top: 12px;
+  background: #8e44ad;
+}
+
+.export {
+  width: 100%;
+  background: #27ae60;
+  margin-top: 10px;
+}
+
+.empty {
+  text-align: center;
+  color: #777;
+  padding: 25px;
+}
+
+.result {
+  background: #263744;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 7px;
+}
+
+.result-name {
+  font-size: 19px;
+  font-weight: bold;
+}
+
+.result-details {
+  margin-top: 6px;
+  color: #bbb;
+}
+
+.result-time {
+  color: #2ecc71;
+  font-family: monospace;
+  font-size: 20px;
+}
+
+.speed {
+  color: #3498db;
+  font-weight: bold;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (min-width: 800px) {
+  .finish-buttons {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .finish-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .finish {
+    min-height: 95px;
+  }
+}
