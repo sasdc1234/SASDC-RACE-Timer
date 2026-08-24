@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101820">
+  <meta name="description" content="Offline dog sled race finish timer">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./style.css">
+  <title>Dog Sled Race Timer</title>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <header>
+      <h1>🐕‍🦺 Dog Sled Race Timer</h1>
+      <div id="raceTitle">Ready</div>
+    </header>
+
+    <section class="panel" id="setup">
+
+      <h2>Race Setup</h2>
+
+      <label for="raceName">Race Name</label>
+      <input
+        id="raceName"
+        type="text"
+        placeholder="2026 Club Championships"
+      >
+
+      <label for="raceClass">Class</label>
+      <select id="raceClass">
+        <option>4 Dog</option>
+        <option>2 Dog</option>
+        <option>2 Dog Bikejoring</option>
+        <option>1 Dog Scooter</option>
+        <option>1 Dog Open</option>
+        <option>Open</option>
+        <option>Custom</option>
+      </select>
+
+      <label>Distance</label>
+
+      <div class="distance">
+        <input
+          id="distance"
+          type="number"
+          value="10"
+          min="0.01"
+          step="0.01"
+        >
+
+        <select id="distanceUnit">
+          <option value="km">km</option>
+          <option value="mi">miles</option>
+        </select>
+      </div>
+
+      <label>Start Interval</label>
+
+      <div class="intervals">
+
+        <button
+          type="button"
+          onclick="setIntervalTime(15,this)"
+          class="interval selected"
+        >
+          15 sec
+        </button>
+
+        <button
+          type="button"
+          onclick="setIntervalTime(30,this)"
+          class="interval"
+        >
+          30 sec
+        </button>
+
+        <button
+          type="button"
+          onclick="setIntervalTime(60,this)"
+          class="interval"
+        >
+          1 min
+        </button>
+
+      </div>
+
+      <label for="competitorCount">
+        Number of Competitors
+      </label>
+
+      <div class="competitor-count">
+
+        <input
+          id="competitorCount"
+          type="number"
+          value="10"
+          min="1"
+          max="200"
+        >
+
+        <button
+          type="button"
+          onclick="createCompetitors()"
+        >
+          Create
+        </button>
+
+      </div>
+
+      <div id="competitors"></div>
+
+      <button
+        id="startButton"
+        type="button"
+        class="start"
+        onclick="startRace()"
+      >
+        ▶ START RACE
+      </button>
+
+      <button
+        type="button"
+        class="reset"
+        onclick="resetRace()"
+      >
+        ↻ RESET
+      </button>
+
+    </section>
+
+
+    <section class="clock">
+
+      <div id="raceClock">
+        00:00:00.00
+      </div>
+
+      <div id="status">
+        Ready to start
+      </div>
+
+      <div id="localSaveStatus">
+        💾 Race data saves automatically on this device
+      </div>
+
+    </section>
+
+
+    <section
+      id="finishSection"
+      class="panel hidden"
+    >
+
+      <h2>🏁 Finish Line</h2>
+
+      <p>
+        Tap the competitor when they cross the finish line.
+      </p>
+
+      <div
+        id="finishButtons"
+        class="finish-buttons"
+      ></div>
+
+      <button
+        type="button"
+        class="undo"
+        onclick="undoFinish()"
+      >
+        ↩ UNDO LAST FINISH
+      </button>
+
+    </section>
+
+
+    <section class="panel">
+
+      <h2>Results</h2>
+
+      <div id="results">
+
+        <div class="empty">
+          Results will appear here.
+        </div>
+
+      </div>
+
+      <button
+        type="button"
+        class="export"
+        onclick="exportCSV()"
+      >
+        📥 EXPORT RESULTS
+      </button>
+
+    </section>
+
+  </div>
+
+
+  <script src="./script.js"></script>
+
+</body>
+</html>
